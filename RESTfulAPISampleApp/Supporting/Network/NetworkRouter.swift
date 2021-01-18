@@ -8,6 +8,10 @@
 import Foundation
 import Combine
 
-protocol NetworkRouter {
-    func request(endpoint: HTTPEndpoint) throws -> AnyPublisher<Data?, Error>
+public protocol NetworkRouter {
+    func request(endpoint: Endpoint) throws -> AnyPublisher<Data?, Error>
+}
+
+public protocol Endpoint {
+    func urlRequest() throws -> URLRequest
 }

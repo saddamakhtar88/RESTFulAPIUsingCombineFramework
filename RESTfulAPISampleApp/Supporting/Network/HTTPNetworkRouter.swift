@@ -14,9 +14,6 @@ public class HTTPNetworkRouter: NetworkRouter {
 
     // MARK: - Private properties
     
-    private var _defaultCachePolicy = URLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData
-    private var _defaultTimeoutInterval = 60.0 // in seconds
-    
     private let _urlSession: URLSession
     private var _urlSessionTask: URLSessionTask?
     
@@ -26,10 +23,10 @@ public class HTTPNetworkRouter: NetworkRouter {
     
     // MARK: - Public functions
     
-    public func request(endpoint: HTTPEndpoint) throws -> AnyPublisher<Data?, Error> {
+    public func request(endpoint: Endpoint) throws -> AnyPublisher<Data?, Error> {
         let session = _urlSession
         do {
-            let request = try urlRequest(from: endpoint)
+            let request = try endpoint.urlRequest()
             return session
                 .dataTaskPublisher(for: request)
                 .tryMap() { element -> Data? in
@@ -49,38 +46,5 @@ public class HTTPNetworkRouter: NetworkRouter {
         } catch {
             throw URLError(.badURL)
         }
-    }
-    
-    // MARK: - Private functions
-    
-    private func urlRequest(from endpoint: HTTPEndpoint) throws -> URLRequest {
-        
-        var queryItems = [URLQueryItem]()
-        endpoint.queryParams.forEach { (key, value) in
-            queryItems.append(URLQueryItem(name: key, value: value))
-        }
-        
-        guard var urlComps = URLComponents(string: endpoint.url.absoluteString) else {
-            throw HTTPEndpointError.urlError("Cannot fetch URL components")
-        }
-        
-        urlComps.queryItems = queryItems
-        
-        guard let url = urlComps.url else {
-            throw HTTPEndpointError.urlError("Cannot fetch URL after queryItems are added")
-        }
-        
-        var request = URLRequest(url: url,
-                                 cachePolicy: endpoint.cachePolicy ?? _defaultCachePolicy,
-                                 timeoutInterval: endpoint.timeoutInterval ?? _defaultTimeoutInterval)
-        
-        request.httpMethod = endpoint.method.rawValue
-        request.httpBody = endpoint.body
-        
-        endpoint.headers.forEach({ (key, value) in
-            request.setValue(value, forHTTPHeaderField: key)
-        })
-        
-        return request
     }
 }

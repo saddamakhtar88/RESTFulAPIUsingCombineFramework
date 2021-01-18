@@ -28,7 +28,7 @@ class NetworkRouterMock: NetworkRouter {
         }
     }
     
-    func request(endpoint: HTTPEndpoint) throws -> AnyPublisher<Data?, Error> {
+    func request(endpoint: Endpoint) throws -> AnyPublisher<Data?, Error> {
         currentValueSubject = CurrentValueSubject<Data?, Error>(data)
         if error != nil {
             currentValueSubject.send(completion: .failure(error!))

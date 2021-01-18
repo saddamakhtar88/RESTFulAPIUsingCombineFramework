@@ -14,10 +14,22 @@ This is not being developed as a Swift package because the idea of this sample i
 
 ### Code snippets to help understand the sample app
 
-#### Endpoint representation [(Folder: Supporting -> Network)](https://github.com/saddamakhtar88/RESTFulAPIUsingCombineFramework/tree/master/RESTfulAPISampleApp/Supporting/Network)
+#### Network router protocol [(Folder: Supporting -> Network)](https://github.com/saddamakhtar88/RESTFulAPIUsingCombineFramework/tree/master/RESTfulAPISampleApp/Supporting/Network)
+The return type is 'AnyPublisher' from Combine framework
+```swift
+protocol NetworkRouter {
+    func request(endpoint: Endpoint) throws -> AnyPublisher<Data?, Error>
+}
+
+protocol Endpoint {
+    func urlRequest() throws -> URLRequest
+}
+```
+
+#### HTTP Endpoint type [(Folder: Supporting -> Network)](https://github.com/saddamakhtar88/RESTFulAPIUsingCombineFramework/tree/master/RESTfulAPISampleApp/Supporting/Network)
 It is used to define HTTP endpoints
 ```swift
-public protocol HTTPEndpoint {
+protocol HTTPEndpoint: Endpoint {
     var url: URL { get }
     var method: HTTPMethod { get }
     var headers: [String: String] { get }
@@ -25,14 +37,6 @@ public protocol HTTPEndpoint {
     var body: Data? { get }
     var timeoutInterval: TimeInterval? { get }
     var cachePolicy: URLRequest.CachePolicy? { get }
-}
-```
-
-#### Network router protocol [(Folder: Supporting -> Network)](https://github.com/saddamakhtar88/RESTFulAPIUsingCombineFramework/tree/master/RESTfulAPISampleApp/Supporting/Network)
-The return type is 'AnyPublisher' from Combine framework
-```swift
-protocol NetworkRouter {
-    func request(endpoint: HTTPEndpoint) throws -> AnyPublisher<Data?, Error>
 }
 ```
 
@@ -68,7 +72,7 @@ struct ImageSearchNetworkService: ImageSearchService {
 }
 ```
 
-If you would have noticed, this service is further implemented over ImageSearchService a protocol. The reason of this is to abstract the implementation. There could be a requirement in future to fetch data from a local database or somewhere else. With a protocol in place, such a change could be easily managed.
+If you would have noticed, this service is further implemented over ImageSearchService protocol. The reason of this is to abstract the implementation. There could be a requirement in future to fetch data from a local database or somewhere else. With a protocol in place, such a change could be easily managed.
 
 #### Finally consuming the endpoint to fetch data in [ViewController.swift](https://github.com/saddamakhtar88/RESTFulAPIUsingCombineFramework/blob/master/RESTfulAPISampleApp/Views/ViewController.swift)
 ```swift
